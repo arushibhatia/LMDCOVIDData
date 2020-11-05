@@ -1,0 +1,151 @@
+---
+title: "Bass Connections"
+output: pdf_document
+---
+```{r packages-data, warning=FALSE, message=FALSE}
+library(tidyverse)
+survey <- read_csv("Nov4ModifiedCSV.csv") 
+view(survey)
+glimpse(survey)
+```
+
+
+
+
+```{r}
+survey %>%
+  count(`Finished`)
+```
+
+```{r}
+survey$PRIVLESSONSDuring <- as.numeric(survey$PRIVLESSONSDuring)
+survey$PRIVLESSONSPre <- as.numeric(survey$PRIVLESSONSPre)
+
+survey$COURSEWORKPre <- as.numeric(survey$COURSEWORKPre)
+survey$COURSEWORKDuring <- as.numeric(survey$COURSEWORKDuring)
+
+survey$WARMUPPre <- as.numeric(survey$WARMUPPre)
+survey$WARMUPDuring <- as.numeric(survey$WARMUPDuring)
+
+survey$FORMALTRAININGPre <- as.numeric(survey$FORMALTRAININGPre)
+survey$FORMALTRAININGDuring <- as.numeric(survey$FORMALTRAININGDuring)
+
+survey$PERFORMANCEPre <- as.numeric(survey$PERFORMANCEPre)
+survey$PERFORMANCEDuring <- as.numeric(survey$PERFORMANCEDuring)
+
+survey$REHEARSALPre <- as.numeric(survey$REHEARSALPre)
+survey$REHEARSALDuring <- as.numeric(survey$REHEARSALDuring)
+
+survey <- survey %>%
+  mutate(diffPrivLessons=PRIVLESSONSDuring-PRIVLESSONSPre,
+         diffCoursework=COURSEWORKDuring-COURSEWORKPre,
+         diffWarmup=WARMUPDuring-WARMUPPre,
+         diffFormalTraining=FORMALTRAININGDuring-PERFORMANCEPre,
+         diffPerformance=PERFORMANCEDuring-PERFORMANCEPre,
+         diffRehearsal=REHEARSALDuring-REHEARSALPre)
+
+```
+
+```{r}
+both <- survey %>% filter(`Please select the most relevant choice.`=="I am a musician and a bilingual/multilingual. (cf. numbers 1 and 2 above)")
+musician <- survey %>% filter(`Please select the most relevant choice.`=="I am a professional musician, I am a student majoring or minoring in music, I play a musical instrument or sing every day for at least 2 hours per day, OR I am a faculty member teaching music.")
+language <- survey %>% filter(`Please select the most relevant choice.`=="I am a bilingual who uses 2 languages every day, OR I am a multilingual who uses 3 or more languages every day.")
+```
+
+
+```{r}
+both %>%
+  count(`Please select the option that best applies to you.`)
+
+```
+```{r musicExperience}
+both %>%
+  select(`Please state your music experience in the levels of music training given below. - High school - Music experience`,
+         `Please state your music experience in the levels of music training given below. - Some college - Music experience`,
+         `Please state your music experience in the levels of music training given below. - Associate’s degree - Music experience`,
+         `Please state your music experience in the levels of music training given below. - Bachelor’s degree - Music experience`,
+         `Please state your music experience in the levels of music training given below. - Master's degree - Music experience`,
+         `Please state your music experience in the levels of music training given below. - PhD or professional degree - Music experience`,
+         `If applicable, what other types of musical training did you receive?`)    
+
+```
+```{r musicalMemories}
+both %>% 
+  select(`What are the most enjoyable aspects of your musical life?`,
+         `What are some of your most vivid music-related memories?` ,
+         `Do you have memories that also include specific musical moments (performing, listening, etc.)?` ,
+         `Can a piece of music take you to a different place and time?`,
+         `Please share some examples of music making taking you to a different place and time.`)
+
+```
+```{r communitiesOfPractice}
+both %>%
+  select(`With whom do you play music?`,
+         `Are there any musicians in your family or amongst your friends?`,
+         `How has your family's/friend's musicianship impacted you?`)
+
+```
+
+
+```{r}
+both %>%
+  count(`How has COVID-19 affected your ability to be a musician?`)
+
+```
+
+```{r}
+both %>%
+  count(`How has COVID-19 affected your ability to be a musician?`,
+         `In what way has COVID-19 affected your income from music?`,
+         `In what way has COVID-19 affected available rehearsal/practice space for you?`,
+         `In what way has COVID-19 affected your motivation to play?`)
+
+```
+
+```{r}
+both %>%
+  select(`How has COVID-19 affected your ability to be a musician?`,
+         diffPrivLessons,
+         diffCoursework,
+         diffWarmup,
+         diffFormalTraining,
+         diffPerformance,
+         diffRehearsal,
+         `In what way has COVID-19 affected your income from music?`,
+         `In what way has COVID-19 affected available rehearsal/practice space for you?`,
+         `In what way has COVID-19 affected your motivation to play?`,
+         `Please share any additional information on how COVID-19 has affected your ability to be a musician?`)
+
+```
+
+```{r}
+both %>%
+  count(`In what way has COVID-19 affected your accessibility to persons in your bi- and multilingual communities?`)
+
+both %>%
+  summarise(meanYearsPlayed = mean(HowLongPlayingFormatted, na.rm=TRUE),
+            meanAge = mean(Age, na.rm=TRUE))
+
+ggplot(data=both, mapping = aes(x=HowLongPlayingFormatted)) + 
+  geom_histogram(binwidth=1) +
+  labs(x="How long the respondent has been a musician (years)",
+       y="Count",
+       title="Higher frequency around mean (13.3 years)",
+       subtitle="Both musicians and bi/multilinguals")
+```
+```{r}
+both %>% select(HIGHSCHOOLLANGSTUDIED, SOMECOLLEGELANGSTUDIED, ASSOCIATESLANGSTUDIED, BACHELORSLANGSTUDIED, MASTERSLANGSTUDIED, PHDLANGSTUDIED)
+```
+```{r covidAccessibility}
+both %>%
+  count(`In what way has COVID-19 affected your accessibility to persons in your bi- and multilingual communities?`)
+
+both %>%
+  select(`In what way has COVID-19 affected your accessibility to persons in your bi- and multilingual communities?` ,
+         `In what way has COVID-19 affected travel for you?`,
+         `In what ways has COVID-19 impacted your interactions with others in general?`,
+         `In what ways has COVID-19 impacted your income?`,
+         `In what ways has COVID-19 impacted your course delivery of language courses?`)
+```
+
+
